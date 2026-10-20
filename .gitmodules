@@ -1,0 +1,6 @@
+[submodule "models/vggt-omega"]
+	path = models/vggt-omega
+	url = https://github.com/facebookresearch/vggt-omega
+[submodule "models/depth-anything-3"]
+	path = models/depth-anything-3
+	url = https://github.com/ByteDance-Seed/Depth-Anything-3

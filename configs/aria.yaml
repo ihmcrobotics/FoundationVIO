@@ -1,0 +1,58 @@
+# Project Aria (AprilTag, BigRoom, NewTags): python -m foundation_vio.run --config configs/aria.yaml --sequence BigRoom2
+# data/aria/<Name>_sequence: RGB already a pinhole at the factory focal, rotated upright (images/camera_rgb); stride 3
+sequence:
+  dataset_type: 'default'
+  img_stride: 3
+
+imu:
+  use_imu: True
+  bias_prior_sigmas: [0.01, 0.01, 0.01, 1.0e-6, 1.0e-6, 1.0e-6]   # B(0) prior: accel [m/s^2], gyro [rad/s]
+  vi_init:
+    first_pose_rp_sigma: 0.02   # X(0) roll/pitch prior [rad]; yaw and position are pinned
+    scale_sigma: 0.2   # prior on log S(0)
+
+model:
+  use_model: 'DepthAnything3'   # or 'VGGTOmega'
+  model_id: 'depth-anything/DA3NESTED-GIANT-LARGE-1.1'   # e.g. 'depth-anything/DA3-LARGE-1.1' for less VRAM
+  batch_size: 10
+  batch_overlap: 1
+  export_conf_percentile: 25   # export only: drop the lowest 25 % of confidences per submap
+  export_max_range: 5.0   # export only: drop points farther than 5 m from their camera
+  filter_distance: False   # True drops points beyond 5x the batch baseline
+
+loop_closure:
+  enabled: True   # False: odometry only (no loop closures); the run writes that trajectory instead
+  similarity_thres: 0.80   # SALAD descriptor distance below which two frames are a candidate
+  min_submap_gap: 5   # the current submap and the 4 before it are never candidates
+  max_per_batch: 8
+
+std:   # factor sigmas: scale-scale (log), model relative pose [m, deg], loop closure
+  scale: 0.01
+  custom_trans: 0.01
+  custom_rot: 4
+  lc_trans: 0.1
+  lc_rot: 10
+  lc_scale: 0.1
+
+logging:
+  logging_level: 'INFO'
+
+files:   # relative to <dataset_dir>/<sequence_name>
+  dataset_dir: 'data/aria'
+  image_dir: 'images/camera_rgb'
+  imu_file: 'imu/imu_right/data.csv'
+  intrinsics_file: 'kalibr_imucam_chain.yaml'   # cam2.intrinsics: the RGB is already a pinhole
+  extrinsics_file: 'kalibr_imucam_chain.yaml'
+  camera_key: 'cam2'   # the RGB camera in the camchain
+  imu_params_file: 'kalibr_imu_chain.yaml'
+
+sequences:   # --sequence <name> applies its section.key values
+  AprilTag1: {sequence.sequence_name: AprilTag1_sequence}
+  AprilTag2: {sequence.sequence_name: AprilTag2_sequence}
+  BigRoom2: {sequence.sequence_name: BigRoom2_sequence}
+  BigRoom3: {sequence.sequence_name: BigRoom3_sequence}
+  BigRoom4: {sequence.sequence_name: BigRoom4_sequence}
+  NewTags1: {sequence.sequence_name: NewTags1_sequence}
+  NewTags2: {sequence.sequence_name: NewTags2_sequence}
+  NewTags3: {sequence.sequence_name: NewTags3_sequence}
+  NewTags4: {sequence.sequence_name: NewTags4_sequence}

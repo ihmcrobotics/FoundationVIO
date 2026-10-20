@@ -1,0 +1,34 @@
+[workspace]
+name = "foundation_vio"
+channels = ["conda-forge"]
+# glibc 2.31 so pixi accepts rerun-sdk's manylinux_2_31 wheels (pixi defaults to 2.28)
+platforms = [{ platform = "linux-64", glibc = "2.31" }]
+
+[pypi-options]
+extra-index-urls = ["https://download.pytorch.org/whl/cu128"]
+
+[dependencies]
+python = "3.11.*"
+
+[pypi-dependencies]
+foundation_vio = { path = ".", editable = true }
+depth-anything-3 = { path = "models/depth-anything-3", editable = true }
+vggt_omega = { path = "models/vggt-omega", editable = true }
+huggingface-hub = "*"   # VGGT-Omega weights and the `hf` download CLI
+# data preparation and evaluation (scripts/)
+gdown = "*"
+rosbags = "*"
+rosbags-image = "*"
+evo = "*"
+rerun-sdk = "==0.22.1"   # last release that accepts numpy 1 (DA3 pins numpy<2)
+# development
+pytest = "*"
+ruff = "*"
+
+[tasks]
+example-aria = "bash scripts/example_aria_bigroom3.sh"
+example-scarf = "bash scripts/example_scarf_r05.sh"
+example-spires = "bash scripts/example_spires_chch03.sh"
+view = "python scripts/view_run.py"
+replay = "python scripts/replay_run.py"
+test = "pytest -q tests"

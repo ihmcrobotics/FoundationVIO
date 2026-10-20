@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=77"]   # SPDX license string (PEP 639)
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "foundation_vio"
+version = "0.1.0"
+description = "Visual-inertial SLAM from feed-forward geometry models and IMU preintegration in a GTSAM factor graph"
+license = "GPL-3.0-only"
+requires-python = ">=3.10"
+dependencies = [
+    "gtsam==4.3a2",
+    "pandas",
+    "scipy",
+    "open3d",
+    "tqdm",
+    "torch",
+    "torchvision",
+    "numpy",
+    "opencv-python",
+    "pyyaml",
+    "numba",
+]
+
+[tool.setuptools.packages.find]
+include = ["foundation_vio*"]

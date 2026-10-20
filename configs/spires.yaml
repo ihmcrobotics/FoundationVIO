@@ -1,0 +1,54 @@
+# Oxford Spires: python -m foundation_vio.run --config configs/spires.yaml --sequence christ-church-03
+# raw/cam0_pinhole_f700: the 160 deg fisheye rectified to f 700; IMU noise x10 (configs/imu_spires_x10.yaml); 5 Hz
+sequence:
+  dataset_type: 'oxford_spires'
+  img_stride: 4
+
+imu:
+  use_imu: True
+  bias_prior_sigmas: [0.01, 0.01, 0.01, 1.0e-6, 1.0e-6, 1.0e-6]   # B(0) prior: accel [m/s^2], gyro [rad/s]
+  vi_init:
+    first_pose_rp_sigma: 0.02   # X(0) roll/pitch prior [rad]; yaw and position are pinned
+    scale_sigma: 0.2   # prior on log S(0)
+
+model:
+  use_model: 'DepthAnything3'   # or 'VGGTOmega'
+  model_id: 'depth-anything/DA3NESTED-GIANT-LARGE-1.1'   # e.g. 'depth-anything/DA3-LARGE-1.1' for less VRAM
+  batch_size: 10
+  batch_overlap: 1
+  export_conf_percentile: 25   # export only: drop the lowest 25 % of confidences per submap
+  export_max_range: 5.0   # export only: drop points farther than 5 m from their camera
+  filter_distance: True   # drop points beyond 5x the batch baseline
+
+loop_closure:
+  enabled: True   # False: odometry only (no loop closures); the run writes that trajectory instead
+  similarity_thres: 0.80   # SALAD descriptor distance below which two frames are a candidate
+  min_submap_gap: 5   # the current submap and the 4 before it are never candidates
+  max_per_batch: 8
+
+std:   # factor sigmas: scale-scale (log), model relative pose [m, deg], loop closure
+  scale: 0.01
+  custom_trans: 0.01
+  custom_rot: 4
+  lc_trans: 0.1
+  lc_rot: 10
+  lc_scale: 0.1
+
+logging:
+  logging_level: 'INFO'
+
+files:   # relative to <dataset_dir>/<sequence_name>
+  dataset_dir: 'data/oxford-spires'
+  image_dir: 'raw/cam0_pinhole_f700'
+  imu_file: 'raw/imu.csv'
+  intrinsics_file: 'sensor_pinhole_f700.yaml'   # holds the extrinsics too
+  imu_params_file: 'configs/imu_spires_x10.yaml'
+
+sequences:   # --sequence <name> applies its section.key values
+  blenheim-palace-03: {sequence.sequence_name: 2024-03-14-blenheim-palace-03}
+  blenheim-palace-04: {sequence.sequence_name: 2024-03-14-blenheim-palace-04}
+  christ-church-02: {sequence.sequence_name: 2024-03-18-christ-church-02}
+  christ-church-03: {sequence.sequence_name: 2024-03-18-christ-church-03}
+  christ-church-05: {sequence.sequence_name: 2024-03-20-christ-church-05, sequence.img_stride: 1}
+  christ-church-06: {sequence.sequence_name: 2024-03-20-christ-church-06, sequence.img_stride: 1}
+  new-college-01: {sequence.sequence_name: 2024-07-09-new-college-01, sequence.img_stride: 3}

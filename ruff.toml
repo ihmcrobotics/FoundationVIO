@@ -1,0 +1,201 @@
+target-version = "py310"
+line-length = 120
+preview = true
+
+[lint]
+explicit-preview-rules = true
+# Never enforce `E501`.
+extend-select = [
+  # Preview rules (require preview = true + explicit-preview-rules)
+  "PLC2701",  # import-private-name
+
+  # Enabled by default
+  # pyflakes
+  # "F",
+  # pycodestyle
+  # "E",
+  "W",
+  # mccabe
+  "C90",
+  # isort
+  "I",
+  # pep8-naming
+  "N",
+  # pydocstyle
+  "D",
+  # pyupgrade
+  "UP",
+  # flake8-2020
+  "YTT",
+  # flake8-annotations
+  # "ANN",
+  # flake8-bandit
+  "S",
+  # flake8-blind-except
+  "BLE",
+  # flake8-boolean-trap
+  "FBT",
+  # flake8-bugbear
+  "B",
+  # flake8-builtins
+  "A",
+  # flake8-commas
+  "COM",
+  # flake8-comprehensions
+  "C4",
+  # flake8-datetimez
+  "DTZ",
+  # flake-debugger
+  "T10",
+  # flake8-django
+  "DJ",
+  # flake8-errmsg
+  "EM",
+  # flake8-executable
+  "EXE",
+  # lake8-implicit-str-concat
+  "ISC",
+  # lake8-import-conventions
+  "ICN",
+  # flake8-logging-format
+  "G",
+  # flake8-no-pep420
+  "INP",
+  # flake8-pie
+  "PIE",
+  # flake8-print
+  "T20",
+  # flake8-pyi
+  "PYI",
+  # flake8-pytest-style
+  "PT",
+  # flake8-quotes
+  "Q",
+  # flake8-raise
+  "RSE",
+  # flake8-return
+  "RET",
+  # flake8-self
+  "SLF",
+  # flake8-simplify
+  "SIM",
+  # flake8-tidy-imports
+  "TID",
+  # flake8-type-checking
+  # "TCH",
+  # flake8-unused-arguments
+  # "ARG",
+  # flake8-use-pathlib
+  "PTH",
+  # eradicate
+  "ERA",
+  # pandas-vet
+  "PD",
+  # pygrep-hooks
+  "PGH",
+  # Pylint
+  "PLC",
+  "PLE",
+  "PLR",
+  "PLW",
+  # tryceratops
+  "TRY",
+  # NumPy-specific rules
+  "NPY",
+  # Ruff-specific rules
+  "RUF",
+]
+ignore = [
+  "E501",
+  "N802", "N803", "N806",  # maths notation: K, R, T_world_body, fetch_T_cam_imu
+  "PLR0917",  # too many positional arguments
+]
+extend-ignore = [
+  "G004",  # logging-f-string
+  "INP001",  # implicit-namespace-package; check for packages that are missing an __init__.py file
+  "PLR2004",  # magic-value-comparison
+  "S101",  # allow to use assert instead of raise Error
+  "PLR0915",  # too-many-statements
+  "ERA001",  # commented-out-code; the linter won't complained about commented-out code.
+  "BLE001", # don't catch blind Exception (too general)
+
+  # Return Rules
+  "RET504", # unnecessary-assign - Unnecessary assignment before return
+
+  # Exception Message Rules
+  "EM101",  # raw-string-in-exception - Avoid string literals in exception constructors
+  "EM102",  # f-string-in-exception - Avoid f-strings in exception constructors
+
+  # Try/Except Rules
+  "TRY003", # raise-vanilla-args - Avoid long exception messages at raise site
+
+  # Pylint Rules
+  "PLR0912", # too-many-branches - Functions with too many branches (>12 by default)
+  "PLR0913", # too-many-arguments - Functions with too many arguments (>5 by default)
+
+  "COM812", # missing-trailing-comma - Allow omitting trailing commas in multi-line literals and calls
+
+  # Complexity Rules
+  "C901",   # too-complex - Functions that are too complex (McCabe complexity >10)
+
+  # Print Rules
+  "T201",   # print - this codebase uses print() extensively for progress/status
+            # output alongside logging; not worth converting case-by-case
+
+  # Documentation Rules (pydocstyle)
+  "D100",   # undocumented-public-module - Missing module docstring
+  "D101",   # undocumented-public-class - Missing class docstring
+  "D102",   # undocumented-public-function - Missing function docstring
+  "D103",   # undocumented-public-method - Missing method docstring
+  "D104",   # undocumented-public-package - Missing package docstring
+  "D105",   # undocumented-public-nested-class - Missing nested class docstring
+  "D107",   # undocumented-public-init - Missing __init__ method docstring
+  "D205",   # one-line-summary - One-line docstring should fit on one line
+  "D417",   # undocumented-param - Missing parameter documentation
+
+  # Boolean Trap Rules
+  "FBT001", # boolean-trap - Boolean positional argument in function call
+
+  # Try/Except Rules
+  "TRY300", # raise-within-try - Raise within try block without except
+  "TRY301", # abstract-base-class-without-abstract-method - Abstract base class without abstract methods
+
+  # Rules new in ruff 0.15.7 — suppress to keep version bump non-breaking.
+  # TODO: triage and enable these incrementally.
+  "C419",    # unnecessary-dict-comprehension-for-iterable
+  "C420",    # unnecessary-dict-comprehension
+  "COM819",  # prohibited-trailing-comma
+  "F822",    # undefined-export in __all__
+  "FLY002",  # consider f-string instead of join
+  "FURB105", # unnecessary-call-around-sorted
+  "FURB122", # unnecessary-encode-utf8
+  "FURB136", # if-expr-min-max
+  "FURB162", # starmap-zip
+  "FURB188", # slice-to-remove-prefix-or-suffix
+  "LOG015",  # root-logger-call
+  "PERF102", # incorrect-dict-iterator
+  "PERF402", # manual-list-copy
+  "PGH004",  # blanket-noqa without specific codes
+  "PLC0207", # use-maxsplit-arg
+  "PLR1722", # sys-exit-alias
+  "PLR5501", # collapsible-else-if
+  "PLW0108", # unnecessary-lambda
+  "PLW1641", # eq-without-hash
+  "PTH208",  # os-listdir
+  "PYI019",  # custom-type-var-for-self
+  "PYI036",  # bad-exit-annotation
+  "PYI059",  # generic-not-last-base-class
+  "RUF001",  # ambiguous-unicode-character-string
+  "RUF005",  # collection-literal-concatenation
+  "RUF023",  # sort-dunder-slots
+  "RUF046",  # unnecessary-cast-to-int
+  "RUF059",  # unused-unpacked-variable
+  "RUF100",  # unused-noqa
+  "S608",    # hardcoded-sql-expression
+  "UP042",   # replace-str-enum
+]
+[lint.pydocstyle]
+convention = "google"
+
+[lint.isort]
+known-first-party = ["foundation_vio"]

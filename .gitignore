@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Unit test / coverage reports
+.coverage
+.cache
+
+*.log
+
+# pixi
+.pixi/
+
+.vscode/
+
+# run outputs and datasets
+results/
+data/
+
+# full videos stay out of git; media/ keeps the GIFs
+media/*.mp4
