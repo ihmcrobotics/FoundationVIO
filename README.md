@@ -12,7 +12,7 @@
   [<img src="https://img.shields.io/badge/arXiv--b31b1b?style=social&logo=arxiv" alt="Arxiv">](https://arxiv.org/abs/2610.14951)
   [<img src="https://img.shields.io/badge/YouTube--red?style=social&logo=youtube" alt="YouTube">](https://www.youtube.com/watch?v=ieIHefwwKxk)
   [<img src="https://img.shields.io/badge/Website--blue?style=social&logo=googlechrome" alt="Website">](https://dynamic.robots.ox.ac.uk/projects/foundation-vio/)
-  [<img src="https://img.shields.io/badge/Google%20Drive--green?style=social&logo=googledrive" alt="Google Drive">](https://drive.google.com/drive/folders/1rCsp7LJC4cZLmOc-oA1-pth2IbJh3rSC)
+  [<img src="https://img.shields.io/badge/Google%20Drive--green?style=social&logo=googledrive" alt="Google Drive">](https://drive.google.com/drive/folders/1bxeWuI7iZ_19IX0bpkuoyeWR1ZS0f-a0)
 
   <img src="media/readme_figure.png" alt="FoundationVIO metric-scale reconstruction" width="80%">
 </div>
@@ -58,7 +58,7 @@ The script downloads [BigRoom3](https://drive.google.com/file/d/1-usS7bHyYeHCrmC
 ```
 pixi run example-aria       # or: pixi run example-aria <dataset_dir>
 ```
-See [Aria Office dataset](https://drive.google.com/drive/folders/1rCsp7LJC4cZLmOc-oA1-pth2IbJh3rSC) for more sequences. To run manually, unzip one into `data/aria`, then:
+See [Aria Office dataset](https://drive.google.com/drive/folders/1bxeWuI7iZ_19IX0bpkuoyeWR1ZS0f-a0) for more sequences. To run manually, unzip one into `data/aria`, then:
 
 ```
 pixi run python -m foundation_vio.run --config configs/aria.yaml --sequence <name>
