@@ -162,15 +162,21 @@ def run(loader, imu_df, timeshift_ns, window_fn, *, window_frames, g_mag=G):
     gyr = imu_df[["omega_x", "omega_y", "omega_z"]].to_numpy(dtype=np.float64)
     slide = max(1, round(SLIDE_S / (float(np.median(np.diff(stamps_ns))) * 1e-9)))
 
+    rejected = {"low_excitation": 0, "short_model_window": 0, "gravity_check": 0}
     for attempt, first in enumerate(range(0, len(stamps_ns) - window_frames + 1, slide)[:MAX_ATTEMPTS]):
         last = first + window_frames - 1
         inside = (times_ns >= stamps_ns[first]) & (times_ns <= stamps_ns[last])
         excitation = float(np.std(np.linalg.norm(acc[inside], axis=1))) if inside.sum() > 2 else 0.0
         if excitation < MIN_EXCITATION:
+            rejected["low_excitation"] += 1
+            log.warning("VI-init window %d rejected: excitation %.4f < %.4f m/s^2 (%d IMU samples)",
+                        first, excitation, MIN_EXCITATION, int(inside.sum()))
             continue
 
         T = window_fn(first, last)
         if len(T) < window_frames:
+            rejected["short_model_window"] += 1
+            log.warning("VI-init: model returned %d/%d required poses", len(T), window_frames)
             break
         T_rel = [np.linalg.inv(T[0]) @ Tk for Tk in T]  # c0 = body frame of the window's first frame
         R = [Tk[:3, :3] for Tk in T_rel]
@@ -187,6 +193,9 @@ def run(loader, imu_df, timeshift_ns, window_fn, *, window_frames, g_mag=G):
         # the mean specific force over the window points along gravity unless the body accelerates throughout
         mean_force = sum(R[k] @ dv for k, (_, dv, _, _) in enumerate(preints)) / sum(dts)
         if angle_deg(mean_force, g) > GRAVITY_CHECK_DEG:
+            rejected["gravity_check"] += 1
+            log.warning("VI-init window %d rejected: gravity angle %.2f > %.2f degrees",
+                        first, angle_deg(mean_force, g), GRAVITY_CHECK_DEG)
             continue
 
         # carry gravity from the window's first frame back to image 0 (bias-corrected gyro)
@@ -197,5 +206,6 @@ def run(loader, imu_df, timeshift_ns, window_fn, *, window_frames, g_mag=G):
             f"gyro bias {np.round(np.degrees(bg), 2).tolist()} deg/s"
         )
         return VIInit(rotation_correction(gravity_body0, g_mag), gravity_body0, bg, s, attempt)
-    log.warning("VI-init: no window passed; X(0) keeps the identity rotation")
+    log.warning("VI-init: no window passed; X(0) keeps the identity rotation. Images=%d, required=%d, rejections=%s",
+                len(stamps_ns), window_frames, rejected)
     return None

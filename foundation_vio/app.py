@@ -83,7 +83,10 @@ class FoundationVIO:
         console.setLevel(logging.WARNING)
         logger.handlers = [file_handler, console]
 
-    def load(self):
+    def load_models(self):
+        """Load inference models independently of camera input and calibration."""
+        if getattr(self, "handler", None) is not None:
+            return
         name = self.cfg.model.use_model
         if name == "DepthAnything3":
             self.handler = DepthAnything3Handler(self.cfg.model.model_id or "depth-anything/DA3NESTED-GIANT-LARGE-1.1")
@@ -91,6 +94,8 @@ class FoundationVIO:
             self.handler = VGGTOmegaHandler()
         else:
             raise ValueError(f"model.use_model must be 'DepthAnything3' or 'VGGTOmega', got {name!r}")
+    def load(self):
+        self.load_models()
         self.loader = make_loader(self.config)
         self.loader.fetch_image_from_dir(img_stride=self.cfg.sequence.img_stride)
         self.t_ns = [self.loader.get_timestamp_ns(p) for p in self.loader.image_path_list]
@@ -108,6 +113,7 @@ class FoundationVIO:
         """Priors on the first nodes; X(0)'s rotation from the VI-init gravity. Returns the initial pose."""
         imu = self.cfg.imu
         T_initial = np.eye(4)
+        self.vi_initialization_valid = not imu.use_imu
         if imu.use_imu:
             result = vi_init.run(
                 self.loader,
@@ -117,6 +123,7 @@ class FoundationVIO:
                 window_frames=self.batch_size + self.stride,
             )
             if result is not None:
+                self.vi_initialization_valid = True
                 T_initial[:3, :3] = result.dR
 
         # roll/pitch get a soft prior the IMU keeps refining; yaw and translation are pinned (rx ry rz tx ty tz)
@@ -137,7 +144,10 @@ class FoundationVIO:
         total_batches = n_batches if cap is None else min(cap, n_batches)
         params = gtsam.ISAM2Params()
         params.setRelinearizeThreshold(0.01)
-        params.relinearizeSkip = 1
+        skip = int(self.config.get("optimizer", {}).get("relinearize_skip", 1))
+        if skip < 1:
+            raise ValueError("optimizer.relinearize_skip must be positive")
+        params.relinearizeSkip = skip
         params.enablePartialRelinearizationCheck = True
         pbar = tqdm(total=total_batches, desc="Processing batches", unit="batch")
         return IterState(gtsam.ISAM2(params), pbar, T_initial, np.zeros(3)), total_batches
